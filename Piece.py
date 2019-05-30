@@ -1,9 +1,10 @@
 class Piece:
-    def __init__(self, row, col, isAI):
+    def __init__(self, row, col, isAI, id):
         self.col = col
         self.row = row
         self.isAI = isAI
         self.isKing = False
+        self.id = id
 
     def moveTo(self, newRow, newCol):
         self.row = newRow
