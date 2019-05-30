@@ -43,7 +43,7 @@ class Board(Canvas):
                 if put:
                     id = self.create_oval(j * size + 4, i * size +4, j * size + size-4, i * size + size - 4, fill="black")
                     self.tag_bind(id, "<ButtonPress-1>", self.onClick)
-                    self.board[i][j] = Piece(i, j, True)
+                    self.board[i][j] = Piece(i, j, True , id)
                 put = not put
         put = True
         for i in range(7, 4, -1):
@@ -52,7 +52,7 @@ class Board(Canvas):
                 if put:
                     id = self.create_oval(j * size+4, i * size+4, j * size + size - 4, i * size + size - 4, fill="red")
                     self.tag_bind(id, "<ButtonPress-1>", self.onClick)
-                    self.board[i][j] = Piece(i, j, False)
+                    self.board[i][j] = Piece(i, j, False , id)
 
                 put = not put
 
