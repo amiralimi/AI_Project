@@ -5,6 +5,7 @@ class Piece:
         self.isAI = isAI
         self.isKing = False
         self.id = id
+        self.canMoveAgain = False
 
     def moveTo(self, newRow, newCol):
         self.row = newRow
@@ -17,22 +18,27 @@ class Piece:
     def getNortheast(self):
         if self.row > 0 and self.col < 7:
             return [self.row - 1, self.col + 1]
-        return -1
+        return None
 
     def getNorthwest(self):
         if self.row > 0 and self.col > 0:
             return [self.row - 1, self.col - 1]
-        return -1
+        return None
 
     def getSoutheast(self):
         if self.row < 7 and self.col < 7:
             return [self.row + 1, self.col + 1]
-        return -1
+        return None
 
     def getSouthwest(self):
         if self.row < 7 and self.col > 0:
             return [self.row + 1, self.col - 1]
-        return -1
+        return None
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self.id == other.id
 
 
 if __name__ == '__main__':
