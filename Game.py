@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 
-class Board(Canvas):
+class Game(Canvas):
 
     def __init__(self, size):
         self.size = size
@@ -251,5 +251,5 @@ class Board(Canvas):
 
 
 if __name__ == '__main__':
-    b = Board(720)
+    b = Game(720)
     b.run()
