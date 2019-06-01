@@ -18,8 +18,9 @@ class Game(Canvas):
         self.board = np.empty((8, 8), dtype=np.object)
         self.isAI = False
         self.possibleMoves = []
-        self.AINumber = 12
+        self.AINumber = 1
         self.playerNumber = 12
+        self.validPieces = []
 
     def run(self):
         Canvas.__init__(self, self.master, bg='black', height=self.size, width=self.size)
@@ -28,6 +29,7 @@ class Game(Canvas):
         self.pack()
         self.makeBoard()
         self.putPiece()
+        self.checkWins()
         self.master.mainloop()
 
     def cancelMove(self):
@@ -49,7 +51,7 @@ class Game(Canvas):
 
     def makeBoard(self):
         size = self.size / 8
-        color = "white"
+        color = "blue"
         for i in range(self.rows):
             color = self.changeColor(color)
             for j in range(self.cols):
@@ -60,7 +62,7 @@ class Game(Canvas):
 
     def putPiece(self):
         size = self.size / 8
-        put = False
+        put = True
         for i in range(3):
             put = not put
             for j in range(self.cols):
@@ -70,7 +72,7 @@ class Game(Canvas):
                     self.tag_bind(id, "<ButtonPress-1>", self.onClick)
                     self.pieces[i][j] = Piece(i, j, True, id)
                 put = not put
-        put = True
+        put = False
         for i in range(7, 4, -1):
             put = not put
             for j in range(self.cols):
@@ -83,9 +85,12 @@ class Game(Canvas):
                 put = not put
 
     def onClick(self, event):
+
         x = self.canvasx(event.x)
         y = self.canvasy(event.y)
         id = self.find_closest(x, y)[0]
+        if id not in [arr[0] for arr in self.validPieces]:
+            return
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.pieces[i][j] is None:
@@ -94,12 +99,13 @@ class Game(Canvas):
                     self.selectedPiece = self.pieces[i][j]
         if self.selectedPiece.isAI == self.isAI and not self.selectedPiece.canMoveAgain:
             self.resetHighlighted()
-            self.showNormalMove(True, self.selectedPiece)
+            if not self.canHit:
+                self.showNormalMove(True, self.selectedPiece)
             self.showHitMove(True, self.selectedPiece)
 
     def resetHighlighted(self):
         for id in self.possibleMoves:
-            self.itemconfig(id, outline="black")
+            self.itemconfig(id, outline="black", width=0, activewidth=0)
             self.tag_unbind(id, "<ButtonPress-1>")
         self.possibleMoves.clear()
 
@@ -143,15 +149,14 @@ class Game(Canvas):
                     rowMove * size + size - 4)
         if self.selectedPiece.isKing:
             if self.selectedPiece.isAI:
-                self.itemconfig(self.selectedPiece.id, outline="gold")
+                self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
             else:
-                self.itemconfig(self.selectedPiece.id, outline="gold")
+                self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
         if flag:
             self.showHitMove(True, self.selectedPiece)
         if len(self.possibleMoves) == 0:
             self.selectedPiece.canMoveAgain = False
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
-            self.selectedPiece = None
             self.isAI = not self.isAI
             self.checkWins()
         else:
@@ -160,7 +165,7 @@ class Game(Canvas):
 
     def highlighted(self):
         for id in self.possibleMoves:
-            self.itemconfig(id, outline="yellow")
+            self.itemconfig(id, outline="yellow", width=4, activewidth=6)
             self.tag_bind(id, "<ButtonPress-1>", self.onClickMove)
 
     def showNormalMove(self, show, selectedPiece):
@@ -214,17 +219,44 @@ class Game(Canvas):
         elif self.playerNumber <= 0:
             text = 'AI Wins'
         if text == 'no wins':
+            for arr in self.validPieces:
+                if arr[0] == self.selectedPiece.id:
+                    if self.selectedPiece.isKing:
+                        self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
+                    else:
+                        self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
+                else:
+                    if self.pieces[arr[1]][arr[2]].isKing:
+                        self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
+                    else:
+                        self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
+            self.selectedPiece = None
+            self.validPieces.clear()
+            self.canHit = False
+            canNormal = False
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
+                        self.showHitMove(False, self.pieces[i][j])
+                        if len(self.possibleMoves) != 0:
+                            self.validPieces.append([self.pieces[i][j].id, i, j])
+                            self.canHit = True
+                            self.possibleMoves.clear()
+
+            if self.canHit:
+                self.highlighteValidPieces()
+                return
             for i in range(self.rows):
                 for j in range(self.cols):
                     if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
                         self.showNormalMove(False, self.pieces[i][j])
                         if len(self.possibleMoves) != 0:
+                            self.validPieces.append([self.pieces[i][j].id, i, j])
+                            canNormal = True
                             self.possibleMoves.clear()
-                            return
-                        self.showHitMove(False, self.pieces[i][j])
-                        if len(self.possibleMoves) != 0:
-                            self.possibleMoves.clear()
-                            return
+            if canNormal:
+                self.highlighteValidPieces()
+                return
             if self.isAI:
                 text = 'Player Wins'
             else:
@@ -237,7 +269,7 @@ class Game(Canvas):
                            bg="black", font="Helvetica 25 bold italic")
         self.label.place(x=410, y=390, anchor="center")
         self.again = Button(self.master, text="Restart", command=self.restart)
-        self.again.place(x=410, y=410, anchor="center")
+        self.again.place(x=410, y=450, anchor="center")
         self.pack_forget()
         self.cancel.pack_forget()
 
@@ -248,6 +280,13 @@ class Game(Canvas):
         # self.label.place_forget()
         self.__init__(720)
         self.run()
+
+    def highlighteValidPieces(self):
+        for arr in self.validPieces:
+            if not self.pieces[arr[1]][arr[2]].isKing:
+                self.itemconfig(arr[0], outline="white", width=4, activewidth=6)
+            else:
+                self.itemconfig(arr[0], outline="yellow", width=4, activewidth=6)
 
 
 if __name__ == '__main__':
