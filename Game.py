@@ -18,9 +18,11 @@ class Game(Canvas):
         self.board = np.empty((8, 8), dtype=np.object)
         self.isAI = False
         self.possibleMoves = []
-        self.AINumber = 1
+        self.AINumber = 12
         self.playerNumber = 12
         self.validPieces = []
+        self.moveWithoutHit = 0
+        self.numToTie = 100
 
     def run(self):
         Canvas.__init__(self, self.master, bg='black', height=self.size, width=self.size)
@@ -117,6 +119,7 @@ class Game(Canvas):
                 self.possibleMoves.append(self.board[i][j][0])
 
     def onClickMove(self, event):
+        self.moveWithoutHit = self.moveWithoutHit + 1
         x = self.canvasx(event.x)
         y = self.canvasy(event.y)
         id = self.find_closest(x, y)[0]
@@ -139,6 +142,7 @@ class Game(Canvas):
             self.delete(self.pieces[int((rowMove + self.selectedPiece.row) / 2)][
                             int((colMove + self.selectedPiece.col) / 2)].id)
             self.pieces[int((rowMove + self.selectedPiece.row) / 2)][int((colMove + self.selectedPiece.col) / 2)] = None
+            self.moveWithoutHit = 0
 
         self.pieces[rowMove][colMove] = self.pieces[self.selectedPiece.row][self.selectedPiece.col]
         self.pieces[self.selectedPiece.row][self.selectedPiece.col] = None
@@ -213,11 +217,14 @@ class Game(Canvas):
             self.highlighted()
 
     def checkWins(self):
+
         text = 'no wins'
+        if self.moveWithoutHit >= self.numToTie:
+            text = 'Tie :|'
         if self.AINumber <= 0:
-            text = 'Player Wins'
+            text = 'Player Wins :)'
         elif self.playerNumber <= 0:
-            text = 'AI Wins'
+            text = 'AI Wins :('
         if text == 'no wins':
             for arr in self.validPieces:
                 if arr[0] == self.selectedPiece.id:
