@@ -327,7 +327,7 @@ class Game(Canvas):
                 text = 'Player Wins'
             else:
                 text = 'AI Wins'
-        self.finishGame()
+        self.finishGame(text)
 
     def check_win(self):
         if self.moveWithoutHit >= self.numToTie:
@@ -352,7 +352,7 @@ class Game(Canvas):
                         return False
         return True
 
-    def finishGame(self):
+    def finishGame(self,text):
         self.delete(ALL)
         self.label = Label(self.master,
                            compound=CENTER,
