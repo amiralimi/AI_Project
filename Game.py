@@ -2,6 +2,8 @@ from tkinter import *
 from Piece import Piece
 import numpy as np
 import math
+from AI import AI_move
+import Board
 
 
 class Game(Canvas):
@@ -23,65 +25,6 @@ class Game(Canvas):
         self.validPieces = []
         self.moveWithoutHit = 0
         self.numToTie = 100
-
-    def move(self, piece, move):
-        rowMove = -1
-        colMove = -1
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.board[i][j][0] == move:
-                    rowMove = self.board[i][j][1]
-                    colMove = self.board[i][j][2]
-                    break
-        if math.fabs(self.selectedPiece.row - rowMove) > 1:
-            if self.selectedPiece.isAI:
-                self.playerNumber = self.playerNumber - 1
-            else:
-                self.AINumber = self.AINumber - 1
-            self.pieces[int((rowMove + piece.row) / 2)][int((colMove + piece.col) / 2)] = None
-            self.moveWithoutHit = 0
-        self.pieces[rowMove][colMove] = self.pieces[piece.row][piece.col]
-        self.pieces[self.selectedPiece.row][self.selectedPiece.col] = None
-        self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
-        self.isAI = not self.isAI
-        return piece
-
-    def valid_pieces(self):
-        validPieces = []
-        canHit = False
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
-                    self.showHitMove(False, self.pieces[i][j])
-                    if len(self.possible_moves) != 0:
-                        validPieces.append([self.pieces[i][j].id, i, j])
-                        self.canHit = True
-                        self.possible_moves.clear()
-
-        if canHit:
-            return validPieces
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
-                    self.showNormalMove(False, self.pieces[i][j])
-                    if len(self.possible_moves) != 0:
-                        validPieces.append([self.pieces[i][j].id, i, j])
-                        canNormal = True
-                        self.possible_moves.clear()
-
-        return validPieces
-
-    def valid_moves(self, piece):
-        possible_moves = []
-        self.showHitMove(False, self.pieces[piece[1]][piece[2]])
-        if len(self.possible_moves) != 0:
-            possible_moves = self.possible_moves.copy()
-            self.possible_moves.clear()
-            return possible_moves
-        self.showNormalMove(False, self.pieces[piece[1]][piece[2]])
-        possible_moves = self.possible_moves.copy()
-        self.possible_moves.clear()
-        return possible_moves
 
     def run(self):
         Canvas.__init__(self, self.master, bg='black', height=self.size, width=self.size)
@@ -176,6 +119,51 @@ class Game(Canvas):
             j = neighbour[1]
             if self.pieces[i][j] is None:
                 self.possible_moves.append(self.board[i][j][0])
+
+    def move_ai(self, id):
+        rowMove = -1
+        colMove = -1
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.board[i][j][0] == id:
+                    rowMove = self.board[i][j][1]
+                    colMove = self.board[i][j][2]
+                    break
+        flag = False
+        if math.fabs(self.selectedPiece.row - rowMove) > 1:
+            if self.selectedPiece.isAI:
+                self.playerNumber = self.playerNumber - 1
+            else:
+                self.AINumber = self.AINumber - 1
+            flag = True
+            self.delete(self.pieces[int((rowMove + self.selectedPiece.row) / 2)][
+                            int((colMove + self.selectedPiece.col) / 2)].id)
+            self.pieces[int((rowMove + self.selectedPiece.row) / 2)][int((colMove + self.selectedPiece.col) / 2)] = None
+            self.moveWithoutHit = 0
+
+        self.pieces[rowMove][colMove] = self.pieces[self.selectedPiece.row][self.selectedPiece.col]
+        self.pieces[self.selectedPiece.row][self.selectedPiece.col] = None
+        self.selectedPiece.moveTo(rowMove, colMove)
+        self.pieces[self.selectedPiece.row][self.selectedPiece.col].moveTo(rowMove, colMove)
+        size = self.size / 8
+        self.coords(self.selectedPiece.id, colMove * size + 4, rowMove * size + 4, colMove * size + size - 4,
+                    rowMove * size + size - 4)
+        if self.selectedPiece.isKing:
+            if self.selectedPiece.isAI:
+                self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
+            else:
+                self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
+        if flag:
+            self.showHitMove(False, self.selectedPiece)
+        if len(self.possible_moves) == 0:
+            self.selectedPiece.canMoveAgain = False
+            self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
+            self.isAI = not self.isAI
+            self.checkWins()
+        else:
+            self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = True
+            self.selectedPiece.canMoveAgain = True
+            self.move_ai(self.possible_moves[0])
 
     def onClickMove(self, event):
         self.moveWithoutHit = self.moveWithoutHit + 1
@@ -310,7 +298,16 @@ class Game(Canvas):
                             self.possible_moves.clear()
 
             if self.canHit:
-                self.highlighteValidPieces()
+                if self.isAI:
+                    # add AI
+                    new_board = Board.Board(self.board, self.pieces, self.rows, self.cols, self.isAI, self.playerNumber,
+                                            self.AINumber, self.numToTie, self.moveWithoutHit)
+                    piece, move = AI_move(new_board)
+                    self.selectedPiece = self.pieces[piece[1]][piece[2]]
+                    self.move_ai(move)
+
+                else:
+                    self.highlighteValidPieces()
                 return
             for i in range(self.rows):
                 for j in range(self.cols):
@@ -321,7 +318,16 @@ class Game(Canvas):
                             canNormal = True
                             self.possible_moves.clear()
             if canNormal:
-                self.highlighteValidPieces()
+                if self.isAI:
+                    # add AI
+                    new_board = Board.Board(self.board, self.pieces, self.rows, self.cols, self.isAI, self.playerNumber,
+                                            self.AINumber, self.numToTie, self.moveWithoutHit)
+                    piece, move = AI_move(new_board)
+                    self.selectedPiece = self.pieces[piece[1]][piece[2]]
+                    self.move_ai(move)
+
+                else:
+                    self.highlighteValidPieces()
                 return
             if self.isAI:
                 text = 'Player Wins'
@@ -352,7 +358,7 @@ class Game(Canvas):
                         return False
         return True
 
-    def finishGame(self,text):
+    def finishGame(self, text):
         self.delete(ALL)
         self.label = Label(self.master,
                            compound=CENTER,
