@@ -18,6 +18,9 @@ class Node:
 
 
 def AI_move(board):
+    # piece = board.valid_pieces()[0]
+    # print(piece, board.valid_moves(piece))
+    # return piece, board.valid_moves(piece)[0]
     current_depth = 0
     root = Node(float('-inf'), board, None, None, current_depth)
     make_tree(board, root)

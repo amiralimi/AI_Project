@@ -54,7 +54,7 @@ class Board:
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
-                    self.showNormalMove(False, self.pieces[i][j])
+                    self.showNormalMove(self.pieces[i][j])
                     if len(self.possible_moves) != 0:
                         validPieces.append([self.pieces[i][j].id, i, j])
                         self.possible_moves.clear()
@@ -62,7 +62,7 @@ class Board:
         return validPieces
 
     def valid_moves(self, piece):
-        possible_moves = []
+        # possible_moves = []
         self.showHitMove(self.pieces[piece[1]][piece[2]])
         if len(self.possible_moves) != 0:
             possible_moves = self.possible_moves.copy()
@@ -71,6 +71,7 @@ class Board:
         self.showNormalMove(self.pieces[piece[1]][piece[2]])
         possible_moves = self.possible_moves.copy()
         self.possible_moves.clear()
+        print(possible_moves)
         return possible_moves
 
     def showHitMove(self, selectedPiece):
