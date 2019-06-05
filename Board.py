@@ -2,7 +2,7 @@ import math
 
 
 class Board:
-    def __init__(self, board, pieces, rows, cols, isAI , player_number , AI_number , numOfTie , moveWithoutHit):
+    def __init__(self, board, pieces, rows, cols, isAI, player_number, AI_number, numOfTie, moveWithoutHit):
         self.moveWithoutHit = moveWithoutHit
         self.numOfTie = numOfTie
         self.playerNumber = player_number
@@ -16,6 +16,7 @@ class Board:
 
     def move(self, piece_tupple, move):
         piece = self.pieces[piece_tupple[1]][piece_tupple[2]]
+        # print(piece.row, piece.col)
         rowMove = -1
         colMove = -1
         for i in range(self.rows):
@@ -31,15 +32,16 @@ class Board:
                 self.AINumber = self.AINumber - 1
             self.pieces[int((rowMove + piece.row) / 2)][int((colMove + piece.col) / 2)] = None
             self.moveWithoutHit = 0
+        self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
         self.pieces[rowMove][colMove] = self.pieces[piece.row][piece.col]
         self.pieces[piece.row][piece.col] = None
-        self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
         self.isAI = not self.isAI
         return piece
 
     def valid_pieces(self):
         validPieces = []
         canHit = False
+        self.possible_moves.clear()
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
@@ -71,7 +73,7 @@ class Board:
         self.showNormalMove(self.pieces[piece[1]][piece[2]])
         possible_moves = self.possible_moves.copy()
         self.possible_moves.clear()
-        print(possible_moves)
+        # print(possible_moves)
         return possible_moves
 
     def showHitMove(self, selectedPiece):
@@ -142,3 +144,19 @@ class Board:
                     if len(self.possible_moves) != 0:
                         return False
         return True
+
+    def __str__(self):
+        str = ""
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.pieces[i][j] is None:
+                    str = str + "o "
+                elif self.pieces[i][j].isAI:
+                    str = str + "B "
+                else:
+                    str = str + "W "
+            str = str + "\n"
+        return str
+
+    def __repr__(self):
+        return self.__str__()

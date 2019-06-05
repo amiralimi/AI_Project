@@ -2,7 +2,7 @@ from tkinter import *
 from Piece import Piece
 import numpy as np
 import math
-from AI import AI_move
+from AI import *
 import Board
 
 
