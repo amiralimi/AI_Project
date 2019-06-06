@@ -335,28 +335,6 @@ class Game(Canvas):
                 text = 'AI Wins'
         self.finishGame(text)
 
-    def check_win(self):
-        if self.moveWithoutHit >= self.numToTie:
-            return True
-        if self.AINumber <= 0:
-            return True
-        elif self.playerNumber <= 0:
-            return True
-        self.selectedPiece = None
-        self.validPieces.clear()
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
-                    self.showHitMove(False, self.pieces[i][j])
-                    if len(self.possible_moves) != 0:
-                        return False
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.pieces[i][j] is not None and self.pieces[i][j].isAI == self.isAI:
-                    self.showNormalMove(False, self.pieces[i][j])
-                    if len(self.possible_moves) != 0:
-                        return False
-        return True
 
     def finishGame(self, text):
         self.delete(ALL)

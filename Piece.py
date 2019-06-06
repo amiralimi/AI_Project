@@ -40,6 +40,12 @@ class Piece:
             return False
         return self.id == other.id
 
+    def __str__(self):
+        return str(self.id) + " " + str(self.row) + " " + str(self.col) + " " + str(self.isAI)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 if __name__ == '__main__':
     p = Piece(1, 2, False)

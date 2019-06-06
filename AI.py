@@ -50,8 +50,8 @@ def make_tree(board, root):
         valid_moves = board.valid_moves(p)
         for m in valid_moves:
             new_board = deepcopy(board)
-            # print(p)
-            # print(m)
+            print(p)
+            print(m)
             new_board.move(p, m)
             print(new_board)
             current_depth = root.depth + 1

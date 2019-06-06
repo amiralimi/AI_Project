@@ -16,7 +16,7 @@ class Board:
 
     def move(self, piece_tupple, move):
         piece = self.pieces[piece_tupple[1]][piece_tupple[2]]
-        # print(piece.row, piece.col)
+        # print(piece, move)
         rowMove = -1
         colMove = -1
         for i in range(self.rows):
@@ -25,6 +25,7 @@ class Board:
                     rowMove = self.board[i][j][1]
                     colMove = self.board[i][j][2]
                     break
+        check_can_move_again = False
         if math.fabs(piece.row - rowMove) > 1:
             if piece.isAI:
                 self.playerNumber = self.playerNumber - 1
@@ -32,11 +33,16 @@ class Board:
                 self.AINumber = self.AINumber - 1
             self.pieces[int((rowMove + piece.row) / 2)][int((colMove + piece.col) / 2)] = None
             self.moveWithoutHit = 0
+            check_can_move_again = True
+        # print(piece)
+        last_row = piece.row
+        last_col = piece.col
         self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
-        self.pieces[rowMove][colMove] = self.pieces[piece.row][piece.col]
-        self.pieces[piece.row][piece.col] = None
+        self.pieces[rowMove][colMove] = self.pieces[last_row][last_col]
+        self.pieces[last_row][last_col] = None
+        print(self)
         self.isAI = not self.isAI
-        return piece
+        return check_can_move_again
 
     def valid_pieces(self):
         validPieces = []
