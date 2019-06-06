@@ -29,8 +29,8 @@ def AI_move(board):
             move = n.move
             piece = n.piece
     # print(value)
-    print(piece)
-    print(move)
+    # print(piece)
+    # print(move)
     return piece, move
 
 
@@ -53,7 +53,7 @@ def make_tree(board, root):
             # print(p)
             # print(m)
             new_board.move(p, m)
-            print(new_board)
+            # print(new_board)
             current_depth = root.depth + 1
             if current_depth == MAX_DEPTH:
                 # print(new_board)

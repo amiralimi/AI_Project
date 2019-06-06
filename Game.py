@@ -4,7 +4,8 @@ import numpy as np
 import math
 from AI import *
 import Board
-from multiprocessing import Process
+from threading import Timer
+
 
 class Game(Canvas):
 
@@ -131,7 +132,7 @@ class Game(Canvas):
                     break
         flag = False
         print(id)
-        print(rowMove , colMove)
+        print(rowMove, colMove)
         print(self.selectedPiece)
         if math.fabs(self.selectedPiece.row - rowMove) > 1:
             if self.selectedPiece.isAI:
@@ -163,7 +164,7 @@ class Game(Canvas):
             self.selectedPiece.canMoveAgain = False
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
             self.isAI = not self.isAI
-            t1 = Process(target=self.checkWins())
+            t1 = Timer(0, self.checkWins)
             t1.start()
             # self.checkWins()
         else:
@@ -215,7 +216,7 @@ class Game(Canvas):
             self.selectedPiece.canMoveAgain = False
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
             self.isAI = not self.isAI
-            t1 = Process(target=self.checkWins())
+            t1 = Timer(0.01, self.checkWins)
             t1.start()
             # self.checkWins()
         else:
@@ -342,7 +343,6 @@ class Game(Canvas):
             else:
                 text = 'AI Wins'
         self.finishGame(text)
-
 
     def finishGame(self, text):
         self.delete(ALL)
