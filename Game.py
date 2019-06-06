@@ -4,7 +4,7 @@ import numpy as np
 import math
 from AI import *
 import Board
-
+from multiprocessing import Process
 
 class Game(Canvas):
 
@@ -130,6 +130,9 @@ class Game(Canvas):
                     colMove = self.board[i][j][2]
                     break
         flag = False
+        print(id)
+        print(rowMove , colMove)
+        print(self.selectedPiece)
         if math.fabs(self.selectedPiece.row - rowMove) > 1:
             if self.selectedPiece.isAI:
                 self.playerNumber = self.playerNumber - 1
@@ -153,13 +156,16 @@ class Game(Canvas):
                 self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
             else:
                 self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
+        self.possible_moves.clear()
         if flag:
             self.showHitMove(False, self.selectedPiece)
         if len(self.possible_moves) == 0:
             self.selectedPiece.canMoveAgain = False
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
             self.isAI = not self.isAI
-            self.checkWins()
+            t1 = Process(target=self.checkWins())
+            t1.start()
+            # self.checkWins()
         else:
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = True
             self.selectedPiece.canMoveAgain = True

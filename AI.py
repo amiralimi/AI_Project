@@ -1,7 +1,7 @@
 # from Game import *
 from copy import deepcopy
 
-MAX_DEPTH = 10
+MAX_DEPTH = 4
 
 
 class Node:
@@ -28,7 +28,7 @@ def AI_move(board):
         if n.value == value:
             move = n.move
             piece = n.piece
-    print(value)
+    # print(value)
     print(piece)
     print(move)
     return piece, move
@@ -50,23 +50,24 @@ def make_tree(board, root):
         valid_moves = board.valid_moves(p)
         for m in valid_moves:
             new_board = deepcopy(board)
-            print(p)
-            print(m)
+            # print(p)
+            # print(m)
             new_board.move(p, m)
             print(new_board)
             current_depth = root.depth + 1
             if current_depth == MAX_DEPTH:
+                # print(new_board)
                 new_node = Node(h(new_board), p, m, current_depth)
-                print(10)
+                # print(10)
             else:
                 if root.value == float('inf'):
-                    print('max node created')
+                    # print('max node created')
                     new_node = Node(float('-inf'), p, m, current_depth)
                 else:
                     new_node = Node(float('inf'), p, m, current_depth)
-                    print('min node created')
+                    # print('min node created')
             root.add_child(new_node)
-            return make_tree(new_board, new_node)
+            make_tree(new_board, new_node)
     return root
 
 
@@ -96,5 +97,5 @@ def min_max_func(root):
     return root.value, root.move, root.piece
 
 # if __name__ == '__main__':
-# game_board = Game(720)
-# AI_move(game_board)
+#     game_board = Board.Board(720)
+#     AI_move(game_board)

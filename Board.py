@@ -40,7 +40,7 @@ class Board:
         self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
         self.pieces[rowMove][colMove] = self.pieces[last_row][last_col]
         self.pieces[last_row][last_col] = None
-        print(self)
+        # print(self)
         self.isAI = not self.isAI
         return check_can_move_again
 
