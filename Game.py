@@ -215,7 +215,9 @@ class Game(Canvas):
             self.selectedPiece.canMoveAgain = False
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = False
             self.isAI = not self.isAI
-            self.checkWins()
+            t1 = Process(target=self.checkWins())
+            t1.start()
+            # self.checkWins()
         else:
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = True
             self.selectedPiece.canMoveAgain = True
