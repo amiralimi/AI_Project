@@ -1,7 +1,7 @@
 import math
 
 
-class Board:
+class Board:    # this class is a copy of board and pieces without graphic for send it to AI side
     def __init__(self, board, pieces, rows, cols, isAI, player_number, AI_number, numOfTie, moveWithoutHit):
         self.moveWithoutHit = moveWithoutHit
         self.numOfTie = numOfTie
