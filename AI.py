@@ -72,7 +72,46 @@ def make_tree(board, root):
 
 
 def h(board):
-    return 0
+    heuristic = 0
+    if board.check_win():
+        if board.isAI:
+            heuristic = float('inf')
+        else:
+            heuristic = float('-inf')
+        return heuristic
+    heuristic += board.AINumber
+    heuristic -= board.playerNumber
+    for r in board.pieces:
+        for p in r:
+            if p is None:
+                continue
+            if p.isKing:
+                if p.isAI:
+                    heuristic += 3
+                else:
+                    heuristic -= 3
+    for r in board.pieces:
+        for p in r:
+            if p is not None and p.isAI:
+                heuristic += check(p.getNortheast(), board)
+                heuristic += check(p.getNorthwest(), board)
+                heuristic += check(p.getSoutheast(), board)
+                heuristic += check(p.getSouthwest(), board)
+    return heuristic
+
+
+def check(p, board):
+    if p is not None:
+        piece = board.pieces[p[0]][p[1]]
+        if piece is not None:
+            if piece.isAI:
+                return 1
+            else:
+                return -1
+        else:
+            return 0
+    else:
+        return 0
 
 
 def min_max_func(root):
