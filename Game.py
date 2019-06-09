@@ -226,6 +226,7 @@ class Game(Canvas):
             else:
                 self.itemconfig(self.selectedPiece.id, outline="gold", width=4, activewidth=6)
         if flag:
+            self.resetHighlighted()
             self.showHitMove(True, self.selectedPiece)
         if len(self.possible_moves) == 0:
             self.selectedPiece.canMoveAgain = False
@@ -235,6 +236,8 @@ class Game(Canvas):
             t1.start()
             # self.checkWins()
         else:
+            self.resetHighlightedPieces()
+            self.validPieces.append([self.selectedPiece.id, self.selectedPiece.row, self.selectedPiece.col])
             self.pieces[self.selectedPiece.row][self.selectedPiece.col].canMoveAgain = True
             self.selectedPiece.canMoveAgain = True
 
@@ -288,6 +291,20 @@ class Game(Canvas):
         if show:
             self.highlighted()
 
+    def resetHighlightedPieces(self):  # unhighlight last valid pieces
+        for arr in self.validPieces:
+            if arr[0] == self.selectedPiece.id:
+                if self.selectedPiece.isKing:
+                    self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
+                else:
+                    self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
+            else:
+                if self.pieces[arr[1]][arr[2]].isKing:
+                    self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
+                else:
+                    self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
+        self.validPieces.clear()
+
     def checkWins(self):  # this function check the Game state and set valid_pieces array
 
         text = 'no wins'
@@ -298,19 +315,8 @@ class Game(Canvas):
         elif self.playerNumber <= 0:
             text = 'AI Wins :('
         if text == 'no wins':
-            for arr in self.validPieces:  # unhighlight last valid pieces
-                if arr[0] == self.selectedPiece.id:
-                    if self.selectedPiece.isKing:
-                        self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
-                    else:
-                        self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
-                else:
-                    if self.pieces[arr[1]][arr[2]].isKing:
-                        self.itemconfig(arr[0], outline="gold", width=4, activewidth=0)
-                    else:
-                        self.itemconfig(arr[0], outline="black", width=0, activewidth=0)
+            self.resetHighlightedPieces()
             self.selectedPiece = None
-            self.validPieces.clear()
             self.canHit = False
             canNormal = False
             for i in range(self.rows):
