@@ -3,7 +3,7 @@ from copy import deepcopy
 MAX_DEPTH = 5
 
 
-class Node:
+class Node:  # node of tree
     def __init__(self, value, piece, move, depth):
         self.value = value
         self.piece = piece
@@ -15,7 +15,7 @@ class Node:
         self.children.append(child)
 
 
-def AI_move(board):
+def AI_move(board):  # find best move for piece
     current_depth = 0
     root = Node(float('-inf'), None, None, current_depth)
     root = make_tree(board, root)
@@ -27,7 +27,7 @@ def AI_move(board):
     return piece, move
 
 
-def make_tree(board, root):
+def make_tree(board, root):  # from this state make all states of the board
     if board.check_win():
         return root
     if root.depth == MAX_DEPTH:
@@ -42,9 +42,9 @@ def make_tree(board, root):
             if current_depth == MAX_DEPTH:
                 new_node = Node(h(new_board), p, m, current_depth)
             else:
-                if root.value == float('inf'):
+                if root.value == float('inf'):  # make maximum
                     new_node = Node(float('-inf'), p, m, current_depth)
-                else:
+                else:  # make minimum
                     new_node = Node(float('inf'), p, m, current_depth)
             root.add_child(new_node)
             make_tree(new_board, new_node)
@@ -52,6 +52,7 @@ def make_tree(board, root):
 
 
 def h(board):
+    # return heuristic value this tries to have maximum Pieces and have king and have closing pieces
     heuristic = 0
     if board.check_win():
         if board.isAI:
@@ -80,7 +81,7 @@ def h(board):
     return heuristic
 
 
-def check(p, board):
+def check(p, board):  # utility function for heuristic function
     if p is not None:
         piece = board.pieces[p[0]][p[1]]
         if piece is not None:
@@ -94,7 +95,7 @@ def check(p, board):
         return 0
 
 
-def min_max_func(root, alpha, beta):
+def min_max_func(root, alpha, beta): # set all value from last depth to root
     if root.value != float('-inf') and root.value != float('inf'):
         return root.value, root.move, root.piece
     elif root.value == float('-inf'):  # max node
