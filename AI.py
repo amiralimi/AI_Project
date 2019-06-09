@@ -4,7 +4,8 @@ MAX_DEPTH = 5
 
 
 class Node:  # node of tree
-    def __init__(self, value, piece, move, depth):
+    def __init__(self, value, piece, move, depth, board):
+        self.board = board
         self.value = value
         self.piece = piece
         self.move = move
@@ -17,7 +18,7 @@ class Node:  # node of tree
 
 def AI_move(board):  # find best move for piece
     current_depth = 0
-    root = Node(float('-inf'), None, None, current_depth)
+    root = Node(float('-inf'), None, None, current_depth, None)
     root = make_tree(board, root)
     value, move, piece = min_max_func(root, float('-inf'), float('inf'))
     for n in root.children:
@@ -29,8 +30,10 @@ def AI_move(board):  # find best move for piece
 
 def make_tree(board, root):  # from this state make all states of the board
     if board.check_win():
+        root.value = h(root.board)
         return root
     if root.depth == MAX_DEPTH:
+        root.value = h(root.board)
         return root
     valid_pieces = board.valid_pieces()
     for p in valid_pieces:
@@ -40,12 +43,13 @@ def make_tree(board, root):  # from this state make all states of the board
             new_board.move(p, m)
             current_depth = root.depth + 1
             if current_depth == MAX_DEPTH:
-                new_node = Node(h(new_board), p, m, current_depth)
+                new_node = Node(h(board), p, m, current_depth, board)
+
             else:
                 if root.value == float('inf'):  # make maximum
-                    new_node = Node(float('-inf'), p, m, current_depth)
+                    new_node = Node(float('-inf'), p, m, current_depth, board)
                 else:  # make minimum
-                    new_node = Node(float('inf'), p, m, current_depth)
+                    new_node = Node(float('inf'), p, m, current_depth, board)
             root.add_child(new_node)
             make_tree(new_board, new_node)
     return root
@@ -53,32 +57,30 @@ def make_tree(board, root):  # from this state make all states of the board
 
 def h(board):
     # return heuristic value this tries to have maximum Pieces and have king and have closing pieces
-    heuristic = 0
+    score = 0
     if board.check_win():
         if board.isAI:
-            heuristic = float('inf')
+            return 100000000000000000000
         else:
-            heuristic = float('-inf')
-        return heuristic
-    heuristic += board.AINumber
-    heuristic -= board.playerNumber
-    for r in board.pieces:
-        for p in r:
-            if p is None:
-                continue
-            if p.isKing:
-                if p.isAI:
-                    heuristic += 3
-                else:
-                    heuristic -= 3
-    for r in board.pieces:
-        for p in r:
-            if p is not None and p.isAI:
-                heuristic += check(p.getNortheast(), board)
-                heuristic += check(p.getNorthwest(), board)
-                heuristic += check(p.getSoutheast(), board)
-                heuristic += check(p.getSouthwest(), board)
-    return heuristic
+            return -100000000000000000000
+    if board.isAI:
+        score += (board.AINumber / board.playerNumber)
+    else:
+        score += (board.playerNumber / board.AINumber)
+    myking = 0.1
+    opponentKing = 0.1
+    for row in board.pieces:
+        for p in row:
+            if p is not None:
+                if p.isKing:
+                    if p.isAI == board.isAI:
+                        myking += 1
+                    else:
+                        opponentKing += 1
+    score += (myking / opponentKing)
+    if board.isAI:
+        return score
+    return score * -1
 
 
 def check(p, board):  # utility function for heuristic function
@@ -86,30 +88,32 @@ def check(p, board):  # utility function for heuristic function
         piece = board.pieces[p[0]][p[1]]
         if piece is not None:
             if piece.isAI:
-                return 1
+                return 20
             else:
-                return -1
+                return 1
         else:
-            return 0
+            return 10
     else:
-        return 0
+        return 10
 
 
-def min_max_func(root, alpha, beta): # set all value from last depth to root
+def min_max_func(root, alpha, beta):  # set all value from last depth to root
     if root.value != float('-inf') and root.value != float('inf'):
         return root.value, root.move, root.piece
     elif root.value == float('-inf'):  # max node
         for n in root.children:
             temp = min_max_func(n, alpha, beta)
             root.value = max(root.value, temp[0])
-            alpha = max(alpha, temp[0])
-            if beta <= alpha:
-                break
+            alpha = max(alpha, root.value)
+            # if beta <= alpha:
+            #     print(alpha, beta)
+            #     break
     else:  # min node
         for n in root.children:
             temp = min_max_func(n, alpha, beta)
             root.value = min(root.value, temp[0])
-            beta = min(beta, temp[0])
-            if beta <= alpha:
-                break
+            beta = min(beta, root.value)
+            # if beta <= alpha:
+            #     print(alpha, beta)
+            #     break
     return root.value, root.move, root.piece

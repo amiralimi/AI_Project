@@ -1,7 +1,8 @@
 import math
+import random
 
 
-class Board:    # this class is a copy of board and pieces without graphic for send it to AI side
+class Board:  # this class is a copy of board and pieces without graphic for send it to AI side
     def __init__(self, board, pieces, rows, cols, isAI, player_number, AI_number, numOfTie, moveWithoutHit):
         self.moveWithoutHit = moveWithoutHit
         self.numOfTie = numOfTie
@@ -16,7 +17,6 @@ class Board:    # this class is a copy of board and pieces without graphic for s
 
     def move(self, piece_tupple, move):
         piece = self.pieces[piece_tupple[1]][piece_tupple[2]]
-        # print(piece, move)
         rowMove = -1
         colMove = -1
         for i in range(self.rows):
@@ -25,7 +25,6 @@ class Board:    # this class is a copy of board and pieces without graphic for s
                     rowMove = self.board[i][j][1]
                     colMove = self.board[i][j][2]
                     break
-        check_can_move_again = False
         if math.fabs(piece.row - rowMove) > 1:
             if piece.isAI:
                 self.playerNumber = self.playerNumber - 1
@@ -33,16 +32,12 @@ class Board:    # this class is a copy of board and pieces without graphic for s
                 self.AINumber = self.AINumber - 1
             self.pieces[int((rowMove + piece.row) / 2)][int((colMove + piece.col) / 2)] = None
             self.moveWithoutHit = 0
-            check_can_move_again = True
-        # print(piece)
         last_row = piece.row
         last_col = piece.col
         self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
         self.pieces[rowMove][colMove] = self.pieces[last_row][last_col]
         self.pieces[last_row][last_col] = None
-        # print(self)
         self.isAI = not self.isAI
-        return check_can_move_again
 
     def valid_pieces(self):
         validPieces = []
