@@ -55,6 +55,57 @@ def make_tree(board, root):  # from this state make all states of the board
     return root
 
 
+def cover_another_piece(piece, board):
+    northwest = piece.getNorthwest()
+    northeast = piece.getNortheast()
+    southwest = piece.getSouthwest()
+    southeast = piece.getSoutheast()
+    if piece.isKing:
+        if northeast is not None and board.pieces[northeast[0]][northeast[1]] is not None and \
+                board.pieces[northeast[0]][northeast[1]].isAI == piece.isAI:
+            if southwest is not None and board.pieces[southwest[0]][southwest[1]] is not None and \
+                    board.pieces[southwest[0]][southwest[1]].isAI != piece.isAI:
+                return True
+        if southwest is not None and board.pieces[southwest[0]][southwest[1]] is not None and \
+                board.pieces[southwest[0]][southwest[1]].isAI == piece.isAI:
+            if northeast is not None and board.pieces[northeast[0]][northeast[1]] is not None and \
+                    board.pieces[northeast[0]][northeast[1]].isAI != piece.isAI:
+                return True
+        if southeast is not None and board.pieces[southeast[0]][southeast[1]] is not None and \
+                board.pieces[southeast[0]][southeast[1]].isAI == piece.isAI:
+            if northwest is not None and board.pieces[northwest[0]][northwest[1]] is not None and \
+                    board.pieces[northwest[0]][northwest[1]].isAI != piece.isAI:
+                return True
+        if northwest is not None and board.pieces[northwest[0]][northwest[1]] is not None and \
+                board.pieces[northwest[0]][northwest[1]].isAI == piece.isAI:
+            if southeast is not None and board.pieces[southeast[0]][southeast[1]] is not None and \
+                    board.pieces[southeast[0]][southeast[1]].isAI != piece.isAI:
+                return True
+    elif piece.isAI:
+        if northwest is not None and board.pieces[northwest[0]][northwest[1]] is not None and \
+                board.pieces[northwest[0]][northwest[1]].isAI == piece.isAI:
+            if southeast is not None and board.pieces[southeast[0]][southeast[1]] is not None and \
+                    board.pieces[southeast[0]][southeast[1]].isAI != piece.isAI:
+                return True
+        if northeast is not None and board.pieces[northeast[0]][northeast[1]] is not None and \
+                board.pieces[northeast[0]][northeast[1]].isAI == piece.isAI:
+            if southwest is not None and board.pieces[southwest[0]][southwest[1]] is not None and \
+                    board.pieces[southwest[0]][southwest[1]].isAI != piece.isAI:
+                return True
+    else:
+        if southwest is not None and board.pieces[southwest[0]][southwest[1]] is not None and \
+                board.pieces[southwest[0]][southwest[1]].isAI == piece.isAI:
+            if northeast is not None and board.pieces[northeast[0]][northeast[1]] is not None and \
+                    board.pieces[northeast[0]][northeast[1]].isAI != piece.isAI:
+                return True
+        if southeast is not None and board.pieces[southeast[0]][southeast[1]] is not None and \
+                board.pieces[southeast[0]][southeast[1]].isAI == piece.isAI:
+            if northwest is not None and board.pieces[northwest[0]][northwest[1]] is not None and \
+                    board.pieces[northwest[0]][northwest[1]].isAI != piece.isAI:
+                return True
+    return False
+
+
 def h(board):
     # return heuristic value this tries to have maximum Pieces and have king and have closing pieces
     score = 0
@@ -64,9 +115,9 @@ def h(board):
         else:
             return -100000000000000000000
     if board.isAI:
-        score += (board.AINumber / board.playerNumber)
+        score += (board.AINumber / board.playerNumber) * 6
     else:
-        score += (board.playerNumber / board.AINumber)
+        score += (board.playerNumber / board.AINumber) * 6
     myking = 0.1
     opponentKing = 0.1
     for row in board.pieces:
@@ -77,7 +128,12 @@ def h(board):
                         myking += 1
                     else:
                         opponentKing += 1
-    score += (myking / opponentKing)
+    score += (myking / opponentKing) * 2
+    for row in board.pieces:
+        for p in row:
+            if p is not None and p.isAI == board.isAI and cover_another_piece(p, board):
+                score += 1
+
     if board.isAI:
         return score
     return score * -1
@@ -105,15 +161,15 @@ def min_max_func(root, alpha, beta):  # set all value from last depth to root
             temp = min_max_func(n, alpha, beta)
             root.value = max(root.value, temp[0])
             alpha = max(alpha, root.value)
-            # if beta <= alpha:
-            #     print(alpha, beta)
-            #     break
+            if beta <= alpha:
+                print(alpha, beta)
+                break
     else:  # min node
         for n in root.children:
             temp = min_max_func(n, alpha, beta)
             root.value = min(root.value, temp[0])
             beta = min(beta, root.value)
-            # if beta <= alpha:
-            #     print(alpha, beta)
-            #     break
+            if beta <= alpha:
+                print(alpha, beta)
+                break
     return root.value, root.move, root.piece

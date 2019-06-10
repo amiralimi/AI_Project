@@ -19,6 +19,7 @@ class Board:  # this class is a copy of board and pieces without graphic for sen
         piece = self.pieces[piece_tupple[1]][piece_tupple[2]]
         rowMove = -1
         colMove = -1
+        flag = False
         for i in range(self.rows):
             for j in range(self.cols):
                 if self.board[i][j][0] == move:
@@ -32,11 +33,18 @@ class Board:  # this class is a copy of board and pieces without graphic for sen
                 self.AINumber = self.AINumber - 1
             self.pieces[int((rowMove + piece.row) / 2)][int((colMove + piece.col) / 2)] = None
             self.moveWithoutHit = 0
+            flag = True
         last_row = piece.row
         last_col = piece.col
         self.pieces[piece.row][piece.col].moveTo(rowMove, colMove)
         self.pieces[rowMove][colMove] = self.pieces[last_row][last_col]
         self.pieces[last_row][last_col] = None
+        if flag:
+            self.possible_moves.clear()
+            self.showHitMove(self.pieces[rowMove][colMove])
+            if len(self.possible_moves) != 0:
+                self.move([self.pieces[rowMove][colMove].id, rowMove, colMove], self.possible_moves[0])
+                return
         self.isAI = not self.isAI
 
     def valid_pieces(self):
