@@ -31,8 +31,8 @@ class Game(Canvas):
         Canvas.__init__(self, self.master, bg='black', height=self.size, width=self.size)
         self.single_player_button = Button(self.master, text="Single player", command=self.make_single_player_game)
         self.multiplayer_button = Button(self.master, text="Multiplayer", command=self.make_multiplayer_game)
-        self.single_player_button.pack()
-        self.multiplayer_button.pack()
+        self.single_player_button.place(x=410, y=400, anchor="center")
+        self.multiplayer_button.place(x=410, y=450, anchor="center")
         self.master.mainloop()
 
     def make_single_player_game(self):
@@ -44,8 +44,8 @@ class Game(Canvas):
         self.makeGame()
 
     def makeGame(self):
-        self.single_player_button.pack_forget()
-        self.multiplayer_button.pack_forget()
+        self.single_player_button.place_forget()
+        self.multiplayer_button.place_forget()
         # you can cancel the double jump by uncommenting following lines
         # self.cancel = Button(self.master, text="Cancel", command=self.cancelMove)
         # self.cancel.pack()
@@ -311,9 +311,15 @@ class Game(Canvas):
         if self.moveWithoutHit >= self.numToTie:
             text = 'Tie :|'
         if self.AINumber <= 0:
-            text = 'Player Wins :)'
+            if self.is_single_player:
+                text = 'You Wins :)'
+            else:
+                text = 'Red player wins'
         elif self.playerNumber <= 0:
-            text = 'AI Wins :('
+            if self.is_single_player:
+                text = 'AI Wins :('
+            else:
+                text = 'Black player wins :)'
         if text == 'no wins':
             self.resetHighlightedPieces()
             self.selectedPiece = None
@@ -359,9 +365,15 @@ class Game(Canvas):
                     self.highlighteValidPieces()
                 return
             if self.isAI:
-                text = 'Player Wins'
+                if self.is_single_player:
+                    text = 'You Wins :)'
+                else:
+                    text = 'Red player wins'
             else:
-                text = 'AI Wins'
+                if self.is_single_player:
+                    text = 'AI Wins :('
+                else:
+                    text = 'Black player wins :)'
         self.finishGame(text)
 
     def finishGame(self, text):  # make end game page

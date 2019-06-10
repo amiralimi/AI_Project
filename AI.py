@@ -162,7 +162,6 @@ def min_max_func(root, alpha, beta):  # set all value from last depth to root
             root.value = max(root.value, temp[0])
             alpha = max(alpha, root.value)
             if beta <= alpha:
-                print(alpha, beta)
                 break
     else:  # min node
         for n in root.children:
@@ -170,6 +169,5 @@ def min_max_func(root, alpha, beta):  # set all value from last depth to root
             root.value = min(root.value, temp[0])
             beta = min(beta, root.value)
             if beta <= alpha:
-                print(alpha, beta)
                 break
     return root.value, root.move, root.piece

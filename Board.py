@@ -73,7 +73,6 @@ class Board:  # this class is a copy of board and pieces without graphic for sen
         return validPieces
 
     def valid_moves(self, piece):
-        # possible_moves = []
         self.showHitMove(self.pieces[piece[1]][piece[2]])
         if len(self.possible_moves) != 0:
             possible_moves = self.possible_moves.copy()
@@ -82,7 +81,6 @@ class Board:  # this class is a copy of board and pieces without graphic for sen
         self.showNormalMove(self.pieces[piece[1]][piece[2]])
         possible_moves = self.possible_moves.copy()
         self.possible_moves.clear()
-        # print(possible_moves)
         return possible_moves
 
     def showHitMove(self, selectedPiece):
